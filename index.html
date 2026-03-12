@@ -568,6 +568,67 @@
     opacity: 1;
   }
 
+  /* ---- LEADERBOARD ---- */
+  .lb-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.88); z-index: 9999;
+    display: flex; justify-content: center; align-items: center;
+    padding: 20px;
+  }
+  .lb-overlay.hidden { display: none !important; }
+  .lb-box {
+    background: #fff; max-width: 600px; width: 100%; max-height: 85vh;
+    overflow-y: auto; padding: 30px; position: relative;
+  }
+  .lb-title { font-size: 16px; color: #333; margin-bottom: 20px; text-align: center; letter-spacing: 2px; }
+  .lb-close {
+    position: absolute; top: 12px; right: 16px; font-family: 'Press Start 2P', monospace;
+    font-size: 12px; background: none; border: none; cursor: pointer; color: #999;
+  }
+  .lb-close:hover { color: #333; }
+  .lb-table { width: 100%; border-collapse: collapse; }
+  .lb-table th { font-size: 7px; color: #999; text-align: left; padding: 6px 4px; border-bottom: 2px solid #333; }
+  .lb-table td { font-size: 8px; color: #555; padding: 8px 4px; border-bottom: 1px solid #eee; }
+  .lb-table tr:nth-child(-n+3) td:first-child { color: #333; font-weight: bold; }
+  .lb-rank { width: 30px; text-align: center; }
+  .lb-empty { text-align: center; color: #aaa; font-size: 9px; padding: 40px 0; }
+  .lb-loading { text-align: center; color: #aaa; font-size: 9px; padding: 40px 0; }
+
+  /* ---- NAME INPUT MODAL ---- */
+  .name-modal {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.88); z-index: 9998;
+    display: flex; justify-content: center; align-items: center; padding: 20px;
+  }
+  .name-modal.hidden { display: none !important; }
+  .name-box {
+    background: #fff; padding: 30px; max-width: 400px; width: 100%; text-align: center;
+  }
+  .name-box h3 { font-size: 12px; color: #333; margin-bottom: 6px; }
+  .name-box .name-score { font-size: 20px; color: #333; margin-bottom: 16px; }
+  .name-box input {
+    font-family: 'Press Start 2P', monospace; font-size: 12px;
+    border: 3px solid #333; padding: 12px; width: 100%; text-align: center;
+    text-transform: uppercase; margin-bottom: 12px; outline: none;
+  }
+  .name-box input::placeholder { color: #ccc; }
+  .name-btns { display: flex; gap: 10px; justify-content: center; }
+  .name-btns button {
+    font-family: 'Press Start 2P', monospace; font-size: 9px;
+    padding: 10px 20px; border: 3px solid #333; cursor: pointer;
+  }
+  .name-submit { background: #333; color: #fff; }
+  .name-submit:hover { background: #555; }
+  .name-skip { background: #fff; color: #333; }
+  .name-skip:hover { background: #eee; }
+
+  .menu-btn {
+    font-family: 'Press Start 2P', monospace; font-size: 10px;
+    padding: 12px 24px; border: 3px solid #333; background: #fff;
+    cursor: pointer; pointer-events: all; letter-spacing: 1px; margin-top: 8px;
+  }
+  .menu-btn:hover { background: #333; color: #fff; }
+
   @media (max-width: 900px) {
     .build-grid { grid-template-columns: 1fr; max-width: 400px; }
     h1 { font-size: 24px; }
@@ -627,6 +688,7 @@
         </div>
       </div>
       <div class="controls-hint">Click a build to continue</div>
+      <button class="menu-btn" id="lb-open-btn">LEADERBOARD</button>
     </div>
 
     <!-- HOW TO PLAY -->
@@ -704,6 +766,28 @@
     </div>
 
 
+  </div>
+</div>
+
+<!-- Name input modal -->
+<div id="name-modal" class="name-modal hidden">
+  <div class="name-box">
+    <h3>SCORE</h3>
+    <div class="name-score" id="name-score-val">0</div>
+    <input type="text" id="name-input" maxlength="16" placeholder="YOUR NAME" autocomplete="off">
+    <div class="name-btns">
+      <button class="name-submit" id="name-submit-btn">SAVE</button>
+      <button class="name-skip" id="name-skip-btn">SKIP</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leaderboard overlay -->
+<div id="lb-overlay" class="lb-overlay hidden">
+  <div class="lb-box">
+    <button class="lb-close" id="lb-close-btn">X</button>
+    <div class="lb-title">LEADERBOARD</div>
+    <div id="lb-content"><div class="lb-loading">LOADING...</div></div>
   </div>
 </div>
 
@@ -2285,6 +2369,103 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
   }
   ctx.fillText(line.trim(), x, curY);
 }
+
+// ---- LEADERBOARD ----
+const nameModal = document.getElementById('name-modal');
+const nameInput = document.getElementById('name-input');
+const nameScoreVal = document.getElementById('name-score-val');
+const nameSubmitBtn = document.getElementById('name-submit-btn');
+const nameSkipBtn = document.getElementById('name-skip-btn');
+const lbOverlay = document.getElementById('lb-overlay');
+const lbContent = document.getElementById('lb-content');
+const lbOpenBtn = document.getElementById('lb-open-btn');
+const lbCloseBtn = document.getElementById('lb-close-btn');
+
+let savedName = localStorage.getItem('subrunner-name') || '';
+
+function showNameModal() {
+  nameScoreVal.textContent = score;
+  nameInput.value = savedName;
+  nameModal.classList.remove('hidden');
+  setTimeout(() => nameInput.focus(), 100);
+}
+
+function hideNameModal() {
+  nameModal.classList.add('hidden');
+}
+
+async function submitScore(playerName) {
+  savedName = playerName;
+  localStorage.setItem('subrunner-name', savedName);
+  try {
+    await fetch('/api/scores', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: playerName,
+        score: score,
+        build: build.name,
+        timeline: getTimelineLabel(),
+      }),
+    });
+  } catch (_) {}
+}
+
+nameSubmitBtn.addEventListener('click', async () => {
+  const name = nameInput.value.trim();
+  if (!name) return;
+  nameSubmitBtn.textContent = '...';
+  await submitScore(name);
+  nameSubmitBtn.textContent = 'SAVE';
+  hideNameModal();
+});
+
+nameInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') nameSubmitBtn.click();
+});
+
+nameSkipBtn.addEventListener('click', hideNameModal);
+
+async function loadLeaderboard() {
+  lbContent.innerHTML = '<div class="lb-loading">LOADING...</div>';
+  try {
+    const res = await fetch('/api/scores');
+    const scores = await res.json();
+    if (!scores.length) {
+      lbContent.innerHTML = '<div class="lb-empty">No scores yet. Be the first!</div>';
+      return;
+    }
+    let html = '<table class="lb-table"><thead><tr><th class="lb-rank">#</th><th>NAME</th><th>SCORE</th><th>BUILD</th><th>TIMELINE</th></tr></thead><tbody>';
+    scores.forEach((s, i) => {
+      const medal = i === 0 ? '&#9819; ' : i === 1 ? '&#9818; ' : i === 2 ? '&#9817; ' : '';
+      html += `<tr><td class="lb-rank">${medal}${i + 1}</td><td>${s.name}</td><td>${s.score}</td><td>${s.build || '-'}</td><td>${s.timeline || '-'}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    lbContent.innerHTML = html;
+  } catch (_) {
+    lbContent.innerHTML = '<div class="lb-empty">Could not load leaderboard.</div>';
+  }
+}
+
+lbOpenBtn.addEventListener('click', () => {
+  lbOverlay.classList.remove('hidden');
+  loadLeaderboard();
+});
+
+lbCloseBtn.addEventListener('click', () => {
+  lbOverlay.classList.add('hidden');
+});
+
+lbOverlay.addEventListener('click', (e) => {
+  if (e.target === lbOverlay) lbOverlay.classList.add('hidden');
+});
+
+// Patch endGame to show name modal
+const _origEndGame = endGame;
+endGame = function() {
+  _origEndGame();
+  showNameModal();
+};
 
 // ---- GAME LOOP ----
 function loop() {
