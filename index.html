@@ -11,7 +11,6 @@
 
   html, body {
     touch-action: manipulation;
-    overflow: hidden;
   }
 
   body {
@@ -60,11 +59,12 @@
     width: 100%; height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: safe center;
     align-items: center;
     background: rgba(255,255,255,0.97);
     z-index: 10;
     padding: 30px;
+    overflow-y: auto;
   }
 
   .hidden { display: none !important; }
@@ -649,7 +649,30 @@
 
   /* ---- PHONE PORTRAIT ---- */
   @media (max-width: 600px) {
-    .screen { padding: 16px; overflow-y: auto; }
+    #game-wrapper {
+      max-height: none;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #111;
+    }
+    canvas {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1200 / 500;
+      flex-shrink: 0;
+      border-bottom: 2px solid #333;
+    }
+    #ui-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+    }
+    .screen {
+      padding: 16px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+    }
     h1 { font-size: 18px; letter-spacing: 2px; margin-bottom: 4px; }
     .subtitle { font-size: 9px; margin-bottom: 16px; line-height: 1.8; }
     .build-grid { gap: 10px; max-width: 100%; }
@@ -705,7 +728,12 @@
 
   /* ---- LANDSCAPE PHONE ---- */
   @media (max-height: 450px) {
-    .screen { padding: 10px; overflow-y: auto; }
+    .screen {
+      padding: 10px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+    }
     h1 { font-size: 16px; margin-bottom: 2px; }
     .subtitle { font-size: 8px; margin-bottom: 10px; }
     .build-grid { grid-template-columns: 1fr 1fr; gap: 8px; max-width: 100%; }
