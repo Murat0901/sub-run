@@ -9,6 +9,11 @@
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  html, body {
+    touch-action: manipulation;
+    overflow: hidden;
+  }
+
   body {
     background: #1a1a1a;
     display: flex;
@@ -25,6 +30,8 @@
     height: 100vh;
     max-width: 1400px;
     max-height: 700px;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
   canvas {
@@ -33,6 +40,7 @@
     background: #fff;
     image-rendering: pixelated;
     display: block;
+    touch-action: none;
   }
 
   #ui-overlay {
@@ -638,11 +646,153 @@
     .go-columns { flex-direction: column; }
     .share-card-preview { max-width: 95vw; height: auto; }
   }
+
+  /* ---- PHONE PORTRAIT ---- */
+  @media (max-width: 600px) {
+    .screen { padding: 16px; overflow-y: auto; }
+    h1 { font-size: 18px; letter-spacing: 2px; margin-bottom: 4px; }
+    .subtitle { font-size: 9px; margin-bottom: 16px; line-height: 1.8; }
+    .build-grid { gap: 10px; max-width: 100%; }
+    .build-card { padding: 12px; }
+    .build-name { font-size: 10px; margin-bottom: 4px; }
+    .build-tag { font-size: 7px; margin-bottom: 6px; }
+    .build-desc { font-size: 7px; line-height: 1.8; }
+    .build-diff { font-size: 7px; margin-top: 4px; }
+    .controls-hint { font-size: 8px; }
+    .menu-btn { font-size: 8px; padding: 10px 18px; }
+
+    .howto-title { font-size: 16px; margin-bottom: 16px; }
+    .howto-section { margin-bottom: 14px; }
+    .howto-section h3 { font-size: 9px; margin-bottom: 6px; }
+    .howto-section p { font-size: 8px; line-height: 1.8; }
+    .howto-obstacles { gap: 12px; }
+    .howto-obs-icon { width: 28px; height: 28px; }
+    .start-btn { font-size: 11px; padding: 12px 28px; }
+    .back-btn { font-size: 7px; padding: 6px 12px; }
+
+    #gameover-screen { padding: 16px 16px 30px; }
+    .go-title { font-size: 16px; margin-top: 10px; }
+    .go-build-tag { font-size: 8px; margin-bottom: 10px; }
+    .go-section { padding: 10px; margin-bottom: 8px; }
+    .go-section h4 { font-size: 7px; }
+    .go-section p, .go-section li { font-size: 8px; line-height: 2; }
+    .go-stat-box { padding: 8px 10px; }
+    .go-stat-label { font-size: 6px; }
+    .go-stat-val { font-size: 11px; }
+    .go-report-banner { padding: 10px 14px; }
+    .go-report-text { font-size: 7px; }
+    .go-report-cta { font-size: 7px; }
+    .restart-btn, .share-btn { font-size: 9px; padding: 10px 18px; margin-bottom: 12px; }
+    .go-btn-row { gap: 8px; }
+    .go-hit-pip { font-size: 5px; padding: 2px 4px; }
+    .go-benchmark-row { font-size: 6px; }
+    .go-insight-box { font-size: 7px; padding: 10px; }
+
+    .lb-box { padding: 16px; max-width: 100%; }
+    .lb-title { font-size: 12px; margin-bottom: 14px; }
+    .lb-table th { font-size: 6px; }
+    .lb-table td { font-size: 7px; padding: 6px 4px; }
+
+    .name-box { padding: 20px 16px; max-width: 100%; }
+    .name-box h3 { font-size: 10px; }
+    .name-box .name-score { font-size: 16px; }
+    .name-box input { font-size: 10px; padding: 10px; }
+    .name-btns button { font-size: 8px; padding: 8px 14px; }
+
+    .share-social-btn { font-size: 7px; padding: 10px 14px; }
+    .share-actions button { font-size: 6px; padding: 8px 12px; }
+  }
+
+  /* ---- LANDSCAPE PHONE ---- */
+  @media (max-height: 450px) {
+    .screen { padding: 10px; overflow-y: auto; }
+    h1 { font-size: 16px; margin-bottom: 2px; }
+    .subtitle { font-size: 8px; margin-bottom: 10px; }
+    .build-grid { grid-template-columns: 1fr 1fr; gap: 8px; max-width: 100%; }
+    .build-card { padding: 8px 10px; }
+    .build-name { font-size: 9px; margin-bottom: 2px; }
+    .build-tag { font-size: 7px; margin-bottom: 4px; }
+    .build-desc { font-size: 7px; line-height: 1.6; }
+    .build-diff { font-size: 7px; margin-top: 2px; }
+    .controls-hint { font-size: 7px; }
+    .menu-btn { font-size: 8px; padding: 8px 16px; margin-top: 4px; }
+
+    .howto-title { font-size: 14px; margin-bottom: 8px; }
+    .howto-section { margin-bottom: 8px; }
+    .howto-section h3 { font-size: 8px; margin-bottom: 4px; padding-bottom: 3px; }
+    .howto-section p { font-size: 7px; line-height: 1.6; }
+    .start-btn { font-size: 10px; padding: 8px 20px; margin-top: 4px; }
+    .back-btn { font-size: 7px; padding: 4px 10px; margin-top: 4px; }
+
+    #gameover-screen { padding: 10px 10px 20px; }
+    .go-title { font-size: 14px; margin-top: 4px; }
+    .go-section { padding: 8px; margin-bottom: 6px; }
+    .restart-btn, .share-btn { font-size: 8px; padding: 8px 14px; margin-bottom: 8px; }
+
+    .lb-box { padding: 12px; }
+    .name-box { padding: 14px; }
+    .name-box input { font-size: 10px; padding: 8px; }
+  }
+
+  /* ---- TOUCH HINT OVERLAY ---- */
+  .touch-hint {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 50;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    animation: touchHintFade 2s ease-in forwards;
+  }
+  .touch-hint-zone {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    color: #fff;
+    text-shadow: 0 0 8px rgba(0,0,0,0.6);
+  }
+  .touch-hint-zone.top { background: rgba(0,0,0,0.25); }
+  .touch-hint-zone.bottom { background: rgba(0,0,0,0.35); }
+  .touch-hint-divider {
+    height: 2px;
+    background: rgba(255,255,255,0.5);
+  }
+  @keyframes touchHintFade {
+    0%, 60% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* ---- LANDSCAPE PROMPT BANNER ---- */
+  .rotate-banner {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #333;
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7px;
+    text-align: center;
+    padding: 8px 12px;
+    z-index: 10000;
+    line-height: 1.6;
+    animation: rotateBannerFade 4s ease-in forwards;
+  }
+  @keyframes rotateBannerFade {
+    0%, 60% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(100%); }
+  }
 </style>
 </head>
 <body>
 <div id="game-wrapper">
   <canvas id="game" width="1200" height="500"></canvas>
+  <div id="touch-hint" class="touch-hint hidden">
+    <div class="touch-hint-zone top">TAP = JUMP</div>
+    <div class="touch-hint-divider"></div>
+    <div class="touch-hint-zone bottom">TAP = DUCK</div>
+  </div>
   <div id="ui-overlay" class="active">
 
     <!-- MENU -->
@@ -1212,6 +1362,17 @@ function startGame(key) {
     cloudList.push({ x: Math.random() * CW, y: 40 + Math.random() * 80, w: 60 + Math.random() * 50 });
   }
   state = 'playing';
+  showTouchHint();
+}
+
+function showTouchHint() {
+  if (!('ontouchstart' in window)) return;
+  const hint = document.getElementById('touch-hint');
+  hint.classList.remove('hidden');
+  hint.style.animation = 'none';
+  hint.offsetHeight; // reflow
+  hint.style.animation = '';
+  setTimeout(() => { hint.classList.add('hidden'); }, 2100);
 }
 
 function getCurrentPhase() {
@@ -2479,6 +2640,22 @@ function loop() {
 }
 
 loop();
+
+// ---- LANDSCAPE PROMPT ----
+(function() {
+  if (!('ontouchstart' in window)) return;
+  function checkPortrait() {
+    if (window.innerWidth < 600 && window.innerHeight > window.innerWidth) {
+      if (document.querySelector('.rotate-banner')) return;
+      const b = document.createElement('div');
+      b.className = 'rotate-banner';
+      b.textContent = 'Rotate for best experience';
+      document.body.appendChild(b);
+      setTimeout(() => { if (b.parentNode) b.parentNode.removeChild(b); }, 4200);
+    }
+  }
+  checkPortrait();
+})();
 </script>
 </body>
 </html>
