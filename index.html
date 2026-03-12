@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Sub Runner - Subscription Survival Game</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
@@ -19,6 +19,7 @@
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    min-height: 100svh;
     font-family: 'Press Start 2P', monospace;
     overflow: hidden;
   }
@@ -27,6 +28,7 @@
     position: relative;
     width: 100vw;
     height: 100vh;
+    height: 100svh;
     max-width: 1400px;
     max-height: 700px;
     user-select: none;
@@ -652,16 +654,15 @@
     #game-wrapper {
       max-height: none;
       height: 100vh;
+      height: 100svh;
       display: flex;
       flex-direction: column;
       background: #111;
     }
     canvas {
       width: 100%;
-      height: auto;
-      aspect-ratio: 1200 / 500;
-      flex-shrink: 0;
-      border-bottom: 2px solid #333;
+      flex: 1 1 auto;
+      min-height: 0;
     }
     #ui-overlay {
       position: absolute;
@@ -793,6 +794,41 @@
     100% { opacity: 0; }
   }
 
+  /* ---- MOBILE CONTROLS ---- */
+  .mobile-controls {
+    display: none;
+    flex-shrink: 0;
+  }
+  .mobile-controls.visible {
+    display: flex !important;
+    gap: 0;
+    width: 100%;
+  }
+  .mobile-btn {
+    flex: 1;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    letter-spacing: 2px;
+    padding: 22px 0;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .mobile-btn-jump {
+    background: #2a2a2a;
+    color: #fff;
+    border-right: 1px solid #444;
+  }
+  .mobile-btn-duck {
+    background: #1a1a1a;
+    color: #ccc;
+    border-left: 1px solid #444;
+  }
+  .mobile-btn:active {
+    filter: brightness(1.5);
+  }
+
   /* ---- LANDSCAPE PROMPT BANNER ---- */
   .rotate-banner {
     position: fixed;
@@ -816,10 +852,14 @@
 <body>
 <div id="game-wrapper">
   <canvas id="game" width="1200" height="500"></canvas>
+  <div id="mobile-controls" class="mobile-controls hidden">
+    <button id="btn-jump" class="mobile-btn mobile-btn-jump">JUMP</button>
+    <button id="btn-duck" class="mobile-btn mobile-btn-duck">DUCK</button>
+  </div>
   <div id="touch-hint" class="touch-hint hidden">
     <div class="touch-hint-zone top">TAP = JUMP</div>
     <div class="touch-hint-divider"></div>
-    <div class="touch-hint-zone bottom">TAP = DUCK</div>
+    <div class="touch-hint-zone bottom">TAP BOTTOM = DUCK</div>
   </div>
   <div id="ui-overlay" class="active">
 
@@ -983,6 +1023,9 @@ const CH = 500;
 canvas.width = CW;
 canvas.height = CH;
 
+const isMobile = ('ontouchstart' in window) && window.innerWidth < 900;
+const mobileControls = document.getElementById('mobile-controls');
+
 const overlay = document.getElementById('ui-overlay');
 const menuScreen = document.getElementById('menu-screen');
 const howtoScreen = document.getElementById('howto-screen');
@@ -1112,8 +1155,9 @@ function playDodgeSound() {
 const GROUND_Y = 420;
 const GRAVITY = 0.9;
 const JUMP_FORCE = -17;
-const GAME_SPEED_BASE = 3;
-const GAME_SPEED_MAX = 8;
+const GAME_SPEED_BASE = isMobile ? 2.5 : 3;
+const GAME_SPEED_MAX = isMobile ? 6 : 8;
+const MOBILE_GAP_BONUS = isMobile ? 80 : 0;
 
 const MILESTONES = [
   { dist: 0,     label: 'Day 0',    phase: 0 },
@@ -1324,13 +1368,28 @@ canvas.addEventListener('touchstart', e => {
 });
 canvas.addEventListener('touchend', e => { dino.ducking = false; });
 
+// ---- MOBILE BUTTONS ----
+const btnJump = document.getElementById('btn-jump');
+const btnDuck = document.getElementById('btn-duck');
+btnJump.addEventListener('touchstart', e => { e.preventDefault(); if (state === 'playing') jump(); });
+btnDuck.addEventListener('touchstart', e => { e.preventDefault(); if (state === 'playing') dino.ducking = true; });
+btnDuck.addEventListener('touchend', e => { e.preventDefault(); dino.ducking = false; });
+btnDuck.addEventListener('touchcancel', e => { dino.ducking = false; });
+
 // ---- SCREEN NAVIGATION ----
 document.querySelectorAll('.build-card').forEach(card => {
   card.addEventListener('click', () => {
     buildKey = card.dataset.build;
     build = BUILDS[buildKey];
-    menuScreen.classList.add('hidden');
-    howtoScreen.classList.remove('hidden');
+    if (isMobile) {
+      // Skip how-to on mobile, go straight to game
+      menuScreen.classList.add('hidden');
+      overlay.classList.remove('active');
+      startGame(buildKey);
+    } else {
+      menuScreen.classList.add('hidden');
+      howtoScreen.classList.remove('hidden');
+    }
   });
 });
 
@@ -1390,6 +1449,10 @@ function startGame(key) {
     cloudList.push({ x: Math.random() * CW, y: 40 + Math.random() * 80, w: 60 + Math.random() * 50 });
   }
   state = 'playing';
+  if (isMobile) {
+    mobileControls.classList.remove('hidden');
+    mobileControls.classList.add('visible');
+  }
   showTouchHint();
 }
 
@@ -1444,7 +1507,7 @@ function spawnObstacle() {
 function getSpawnInterval() {
   const phase = getCurrentPhase();
   const diff = build.phaseDifficulty[Math.min(phase, build.phaseDifficulty.length - 1)];
-  return (340 - diff * 120) + Math.random() * 100;
+  return (340 - diff * 120) + Math.random() * 100 + MOBILE_GAP_BONUS;
 }
 
 // ---- UPDATE ----
@@ -2135,6 +2198,8 @@ const STRATEGY_TIPS = {
 
 function endGame() {
   state = 'gameover';
+  mobileControls.classList.add('hidden');
+  mobileControls.classList.remove('visible');
   if (gameWon) playWinSound(); else playGameOverSound();
   overlay.classList.add('active');
   gameoverScreen.classList.remove('hidden');
