@@ -2384,8 +2384,12 @@ const lbCloseBtn = document.getElementById('lb-close-btn');
 let savedName = localStorage.getItem('subrunner-name') || '';
 
 function showNameModal() {
+  if (savedName) {
+    submitScore(savedName);
+    return;
+  }
   nameScoreVal.textContent = score;
-  nameInput.value = savedName;
+  nameInput.value = '';
   nameModal.classList.remove('hidden');
   setTimeout(() => nameInput.focus(), 100);
 }
