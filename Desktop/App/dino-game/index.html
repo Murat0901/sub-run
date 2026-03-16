@@ -1017,14 +1017,14 @@
 // SUB RUNNER - Subscription Monetization Dino Game
 // ============================================================
 
+const isMobile = ('ontouchstart' in window) && window.innerWidth < 900;
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
-const CW = 1200;
-const CH = 500;
+const CW = isMobile ? 800 : 1200;
+const CH = isMobile ? 340 : 500;
 canvas.width = CW;
 canvas.height = CH;
 
-const isMobile = ('ontouchstart' in window) && window.innerWidth < 900;
 const mobileControls = document.getElementById('mobile-controls');
 
 const overlay = document.getElementById('ui-overlay');
@@ -1153,12 +1153,12 @@ function playDodgeSound() {
 // Dino feet rest here. Obstacles sit on this line.
 // Dino body extends UPWARD from GROUND_Y (i.e. from GROUND_Y - dino.h to GROUND_Y).
 // Ground obstacles extend UPWARD from GROUND_Y (i.e. from GROUND_Y - obs.h to GROUND_Y).
-const GROUND_Y = 420;
-const GRAVITY = 3240;           // px/s² (was 0.9/frame at 60fps)
-const JUMP_FORCE = -1020;       // px/s  (was -17/frame at 60fps)
-const GAME_SPEED_BASE = isMobile ? 168 : 210;  // px/s
-const GAME_SPEED_MAX = isMobile ? 330 : 480;   // px/s
-const MOBILE_GAP_BONUS = isMobile ? 30 : 0;
+const GROUND_Y = isMobile ? 280 : 420;
+const GRAVITY = isMobile ? 2400 : 3240;           // px/s² — lower on mobile for floatier jumps
+const JUMP_FORCE = isMobile ? -900 : -1020;        // px/s  — slightly softer but floatier with lower gravity
+const GAME_SPEED_BASE = isMobile ? 150 : 210;     // px/s  — slower start on mobile
+const GAME_SPEED_MAX = isMobile ? 290 : 480;      // px/s  — lower cap on mobile
+const MOBILE_GAP_BONUS = isMobile ? 80 : 0;       // more space between obstacles on mobile
 
 const MILESTONES = [
   { dist: 0,     label: 'Day 0',    phase: 0 },
@@ -1448,7 +1448,7 @@ function startGame(key) {
   score = 0;
   runStartTime = Date.now();
   cloudList = [];
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < (isMobile ? 3 : 6); i++) {
     cloudList.push({ x: Math.random() * CW, y: 40 + Math.random() * 80, w: 60 + Math.random() * 50 });
   }
   state = 'playing';
@@ -1568,12 +1568,13 @@ function update(dt) {
     obs.x -= gameSpeed * dt;
 
     if (!obs.passed) {
-      // Hitbox (slightly inset for fairness)
-      // Dino body goes from (y - h) to y. Inset by 6px each side.
-      const hbx = dino.x + 6;
-      const hby = dino.y - dino.h + 6;
-      const hbw = dino.w - 12;
-      const hbh = dino.h - 10;
+      // Hitbox (inset for fairness — more forgiving on mobile)
+      const inset = isMobile ? 10 : 6;
+      const insetV = isMobile ? 14 : 10;
+      const hbx = dino.x + inset;
+      const hby = dino.y - dino.h + inset;
+      const hbw = dino.w - inset * 2;
+      const hbh = dino.h - insetV;
 
       if (hbx < obs.x + obs.w && hbx + hbw > obs.x &&
           hby < obs.y + obs.h && hby + hbh > obs.y) {
@@ -1608,7 +1609,8 @@ function update(dt) {
         if (obs.dmg.ltv >= 3)  damagePopups.push({ text: `LTV -${obs.dmg.ltv}`,  x: cx + 30, y: cy - 60, timer: 1.33, color: '#c4e' });
 
         // Particles
-        for (let p = 0; p < 10; p++) {
+        const particleCount = isMobile ? 5 : 10;
+        for (let p = 0; p < particleCount; p++) {
           particles.push({
             x: obs.x + obs.w / 2, y: obs.y + obs.h / 2,
             vx: (Math.random() - 0.5) * 360, vy: -Math.random() * 300 - 120,
@@ -1688,7 +1690,8 @@ function draw() {
 
   // Ground texture below the line
   ctx.fillStyle = '#d0d0d0';
-  for (let i = -1; i < 55; i++) {
+  const groundTiles = isMobile ? 36 : 55;
+  for (let i = -1; i < groundTiles; i++) {
     const gx = i * 24 - groundOffset;
     ctx.fillRect(gx, GROUND_Y + 6, 3, 2);
     ctx.fillRect(gx + 10, GROUND_Y + 12, 4, 1);
@@ -1717,7 +1720,7 @@ function draw() {
   damagePopups.forEach(dp => {
     ctx.globalAlpha = Math.min(1, dp.timer / 0.67);
     ctx.fillStyle = dp.color;
-    ctx.font = '12px "Press Start 2P"';
+    ctx.font = (isMobile ? '9px' : '12px') + ' "Press Start 2P"';
     ctx.textAlign = 'center';
     ctx.fillText(dp.text, dp.x, dp.y);
   });
@@ -1735,12 +1738,12 @@ function draw() {
     const alpha = milestoneTimer > 1.5 ? 1 : milestoneTimer / 1.5;
     ctx.globalAlpha = alpha;
     ctx.fillStyle = '#333';
-    ctx.font = '28px "Press Start 2P"';
+    ctx.font = (isMobile ? '18px' : '28px') + ' "Press Start 2P"';
     ctx.textAlign = 'center';
-    ctx.fillText(milestoneFlash, CW / 2, 220);
-    ctx.font = '10px "Press Start 2P"';
+    ctx.fillText(milestoneFlash, CW / 2, isMobile ? 150 : 220);
+    ctx.font = (isMobile ? '8px' : '10px') + ' "Press Start 2P"';
     ctx.fillStyle = '#888';
-    ctx.fillText('Milestone reached', CW / 2, 248);
+    ctx.fillText('Milestone reached', CW / 2, isMobile ? 170 : 248);
     ctx.textAlign = 'left';
     ctx.globalAlpha = 1;
   }
@@ -2015,7 +2018,7 @@ function drawObstacle(obs) {
   }
 
   // Name label — right next to the obstacle (to the right)
-  ctx.font = '9px "Press Start 2P"';
+  ctx.font = (isMobile ? '7px' : '9px') + ' "Press Start 2P"';
   const nameText = obs.name;
   const maxDmgKey = obs.dmg.conv >= obs.dmg.ret && obs.dmg.conv >= obs.dmg.ltv ? 'CONV'
     : obs.dmg.ret >= obs.dmg.ltv ? 'RET' : 'LTV';
@@ -2031,7 +2034,7 @@ function drawObstacle(obs) {
   ctx.fillText(nameText, labelX, labelY - 2);
 
   // Damage hint below name
-  ctx.font = '7px "Press Start 2P"';
+  ctx.font = (isMobile ? '6px' : '7px') + ' "Press Start 2P"';
   ctx.fillStyle = '#c33';
   ctx.fillText(dmgText, labelX, labelY + 12);
 
@@ -2040,17 +2043,19 @@ function drawObstacle(obs) {
 
 function drawHUD() {
   // Background panel
+  const hudW = isMobile ? 220 : 280;
+  const hudH = isMobile ? 85 : 110;
   ctx.fillStyle = 'rgba(255,255,255,0.9)';
-  ctx.fillRect(8, 8, 280, 110);
+  ctx.fillRect(8, 8, hudW, hudH);
   ctx.strokeStyle = '#333';
   ctx.lineWidth = 2;
-  ctx.strokeRect(8, 8, 280, 110);
+  ctx.strokeRect(8, 8, hudW, hudH);
 
-  const barW = 140;
-  const barH = 16;
-  const startX = 18;
-  const startY = 18;
-  const gap = 30;
+  const barW = isMobile ? 100 : 140;
+  const barH = isMobile ? 12 : 16;
+  const startX = isMobile ? 14 : 18;
+  const startY = isMobile ? 14 : 18;
+  const gap = isMobile ? 22 : 30;
 
   const statList = [
     { label: 'CONV', val: stats.conv, max: 100 },
@@ -2061,35 +2066,37 @@ function drawHUD() {
   statList.forEach((s, i) => {
     const y = startY + i * gap;
 
+    const labelFont = isMobile ? '8px "Press Start 2P"' : '10px "Press Start 2P"';
+    const labelOffset = isMobile ? 45 : 60;
     ctx.fillStyle = '#333';
-    ctx.font = '10px "Press Start 2P"';
+    ctx.font = labelFont;
     ctx.fillText(s.label, startX, y + 12);
 
     // Bar background
     ctx.fillStyle = '#e8e8e8';
-    ctx.fillRect(startX + 60, y, barW, barH);
+    ctx.fillRect(startX + labelOffset, y, barW, barH);
 
     // Bar fill
     const fillW = (s.val / s.max) * barW;
     if (s.val > 40) ctx.fillStyle = '#333';
     else if (s.val > 20) ctx.fillStyle = '#e8a020';
     else ctx.fillStyle = '#d33';
-    ctx.fillRect(startX + 60, y, fillW, barH);
+    ctx.fillRect(startX + labelOffset, y, fillW, barH);
 
     // Border
     ctx.strokeStyle = '#333';
     ctx.lineWidth = 2;
-    ctx.strokeRect(startX + 60, y, barW, barH);
+    ctx.strokeRect(startX + labelOffset, y, barW, barH);
 
     // Value
     ctx.fillStyle = s.val <= 20 ? '#d33' : '#333';
-    ctx.font = '10px "Press Start 2P"';
-    ctx.fillText(Math.round(s.val) + '%', startX + 60 + barW + 8, y + 12);
+    ctx.font = labelFont;
+    ctx.fillText(Math.round(s.val) + '%', startX + labelOffset + barW + 6, y + 12);
 
     // Flash bar red on low
     if (s.val <= 15 && frameCount % 30 < 15) {
       ctx.fillStyle = 'rgba(220,50,50,0.3)';
-      ctx.fillRect(startX + 60, y, barW, barH);
+      ctx.fillRect(startX + labelOffset, y, barW, barH);
     }
   });
 
@@ -2099,20 +2106,20 @@ function drawHUD() {
 
     // Score
     ctx.fillStyle = '#333';
-    ctx.font = '16px "Press Start 2P"';
+    ctx.font = (isMobile ? '12px' : '16px') + ' "Press Start 2P"';
     ctx.fillText('' + getLiveScore(), CW - 14, 28);
 
     // Best
     if (bestScore > 0) {
       ctx.fillStyle = '#bbb';
-      ctx.font = '8px "Press Start 2P"';
-      ctx.fillText('HI ' + bestScore, CW - 14, 44);
+      ctx.font = (isMobile ? '7px' : '8px') + ' "Press Start 2P"';
+      ctx.fillText('HI ' + bestScore, CW - 14, isMobile ? 40 : 44);
     }
 
     // Build name
     ctx.fillStyle = '#999';
-    ctx.font = '8px "Press Start 2P"';
-    ctx.fillText(build.name.toUpperCase(), CW - 14, 60);
+    ctx.font = (isMobile ? '7px' : '8px') + ' "Press Start 2P"';
+    ctx.fillText(build.name.toUpperCase(), CW - 14, isMobile ? 52 : 60);
 
     ctx.textAlign = 'left';
   }
@@ -2120,8 +2127,8 @@ function drawHUD() {
 
 function drawTimeline() {
   const tlY = GROUND_Y + 36;
-  const tlX = 100;
-  const tlW = CW - 200;
+  const tlX = isMobile ? 40 : 100;
+  const tlW = CW - (isMobile ? 80 : 200);
   const tlH = 8;
 
   // Panel
@@ -2148,7 +2155,7 @@ function drawTimeline() {
 
   // Milestone markers
   const maxDist = MILESTONES[MILESTONES.length - 1].dist;
-  ctx.font = '8px "Press Start 2P"';
+  ctx.font = (isMobile ? '6px' : '8px') + ' "Press Start 2P"';
   MILESTONES.forEach(m => {
     const mx = tlX + (m.dist / maxDist) * tlW;
     const reached = distance >= m.dist;
@@ -2733,7 +2740,7 @@ function loop(timestamp) {
   if (!lastTime) lastTime = timestamp;
   let dt = (timestamp - lastTime) / 1000;
   lastTime = timestamp;
-  dt = Math.min(dt, 0.033); // clamp to ~30fps to avoid spiral-of-death after tab switch
+  dt = Math.min(dt, isMobile ? 0.05 : 0.033); // clamp to ~20fps mobile / ~30fps desktop to avoid spiral-of-death
   update(dt);
   draw();
   requestAnimationFrame(loop);
