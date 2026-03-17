@@ -1154,11 +1154,11 @@ function playDodgeSound() {
 // Dino body extends UPWARD from GROUND_Y (i.e. from GROUND_Y - dino.h to GROUND_Y).
 // Ground obstacles extend UPWARD from GROUND_Y (i.e. from GROUND_Y - obs.h to GROUND_Y).
 const GROUND_Y = isMobile ? 280 : 420;
-const GRAVITY = isMobile ? 1800 : 2800;            // px/s² — much lower for higher, floatier jumps
-const JUMP_FORCE = isMobile ? -920 : -1050;        // px/s  — stronger launch + lower gravity = big jumps
-const GAME_SPEED_BASE = isMobile ? 150 : 210;     // px/s  — slower start on mobile
-const GAME_SPEED_MAX = isMobile ? 290 : 480;      // px/s  — lower cap on mobile
-const MOBILE_GAP_BONUS = isMobile ? 80 : 0;       // more space between obstacles on mobile
+const GRAVITY = isMobile ? 1800 : 2200;            // px/s² — lower gravity = higher, floatier jumps
+const JUMP_FORCE = isMobile ? -920 : -1000;        // px/s  — strong launch + low gravity = easy clears
+const GAME_SPEED_BASE = isMobile ? 150 : 190;     // px/s  — slower start
+const GAME_SPEED_MAX = isMobile ? 290 : 400;      // px/s  — lower top speed
+const GAP_BONUS = isMobile ? 80 : 40;             // more space between obstacles
 
 const MILESTONES = [
   { dist: 0,     label: 'Day 0',    phase: 0 },
@@ -1510,7 +1510,7 @@ function spawnObstacle() {
 function getSpawnInterval() {
   const phase = getCurrentPhase();
   const diff = build.phaseDifficulty[Math.min(phase, build.phaseDifficulty.length - 1)];
-  return (340 - diff * 120) + Math.random() * 100 + MOBILE_GAP_BONUS;
+  return (340 - diff * 120) + Math.random() * 100 + GAP_BONUS;
 }
 
 // ---- UPDATE ----
