@@ -1154,8 +1154,8 @@ function playDodgeSound() {
 // Dino body extends UPWARD from GROUND_Y (i.e. from GROUND_Y - dino.h to GROUND_Y).
 // Ground obstacles extend UPWARD from GROUND_Y (i.e. from GROUND_Y - obs.h to GROUND_Y).
 const GROUND_Y = isMobile ? 280 : 420;
-const GRAVITY = isMobile ? 2400 : 3240;           // px/s² — lower on mobile for floatier jumps
-const JUMP_FORCE = isMobile ? -900 : -1020;        // px/s  — slightly softer but floatier with lower gravity
+const GRAVITY = isMobile ? 1800 : 2800;            // px/s² — much lower for higher, floatier jumps
+const JUMP_FORCE = isMobile ? -920 : -1050;        // px/s  — stronger launch + lower gravity = big jumps
 const GAME_SPEED_BASE = isMobile ? 150 : 210;     // px/s  — slower start on mobile
 const GAME_SPEED_MAX = isMobile ? 290 : 480;      // px/s  — lower cap on mobile
 const MOBILE_GAP_BONUS = isMobile ? 80 : 0;       // more space between obstacles on mobile
