@@ -973,7 +973,7 @@
       <div class="go-title" id="go-title">RUN COMPLETE</div>
       <div class="go-build-tag" id="go-build-tag"></div>
       <div id="go-final-stats" class="go-final-stats"></div>
-      <a href="https://adapty.io/state-of-in-app-subscriptions/" target="_blank" rel="noopener" class="go-report-banner">
+      <a href="https://adapty.io/state-of-in-app-subscriptions-report/?utm_source=other-campaigns&utm_medium=murat-game&utm_campaign=GTM-SOIS26&utm_content=game" target="_blank" rel="noopener" class="go-report-banner">
         <span class="go-report-text">How do your stats compare to 16,000+ real apps?</span>
         <span class="go-report-cta">READ THE FULL REPORT &rarr;</span>
       </a>
@@ -2323,7 +2323,7 @@ function getShareText() {
     ? Math.round((obstaclesDodged / (hitLog.length + obstaclesDodged)) * 100) : 0;
   return `I scored ${score} points running a ${build.name} subscription app in Sub Runner!\n\n` +
     `${gameWon ? '\u{1F3C6}' : '\u{1F480}'} ${timeline} | ${dodgeRate}% dodge rate | Conv: ${Math.round(stats.conv)}% | Ret: ${Math.round(stats.ret)}% | LTV: ${Math.round(stats.ltv)}%\n\n` +
-    `Can you beat my score? \u{1F447}\nhttps://murat0901.github.io/sub-run/`;
+    `Can you beat my score? \u{1F447}\nhttps://sub-run.vercel.app/`;
 }
 
 shareBtn.addEventListener('click', () => {
@@ -2331,7 +2331,7 @@ shareBtn.addEventListener('click', () => {
   const imageData = shareCanvas.toDataURL('image/png');
   const shareText = getShareText();
   const encodedText = encodeURIComponent(shareText);
-  const reportUrl = 'https://adapty.io/state-of-in-app-subscriptions/';
+  const reportUrl = 'https://adapty.io/state-of-in-app-subscriptions-report/?utm_source=other-campaigns&utm_medium=murat-game&utm_campaign=GTM-SOIS26&utm_content=game';
 
   const newTab = window.open('', '_blank');
   newTab.document.write(`<!DOCTYPE html>
@@ -2604,7 +2604,7 @@ function renderShareCard() {
   c.fillStyle = '#ccc';
   c.font = '7px "Press Start 2P"';
   c.textAlign = 'center';
-  c.fillText('murat0901.github.io/sub-run', W / 2, H - 20);
+  c.fillText('sub-run.vercel.app', W / 2, H - 20);
 }
 
 function drawShareCardMascot(c, x, y, w, h) {
